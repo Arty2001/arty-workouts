@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model WorkoutSession {
+  id          String   @id @default(cuid())
+  workoutId   String   // upper-a, lower-a, upper-b, lower-b
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  sets        SetLog[]
+
+  @@index([workoutId])
+  @@index([startedAt])
+}
+
+model SetLog {
+  id              String         @id @default(cuid())
+  workoutSession  WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+  workoutSessionId String
+  exerciseId      String
+  setNumber       Int
+  weight          Float
+  reps            Int
+  loggedAt        DateTime       @default(now())
+
+  @@index([exerciseId])
+  @@index([workoutSessionId])
+}
+
+model ExerciseProgression {
+  id             String   @id @default(cuid())
+  exerciseId     String   @unique
+  currentWeight  Float
+  lastUpdated    DateTime @default(now())
+
+  @@index([exerciseId])
+}
+
+model AppState {
+  id                  String @id @default("singleton")
+  nextWorkoutIndex    Int    @default(0) // 0=upper-a, 1=lower-a, 2=upper-b, 3=lower-b
+  activeSessionId     String?
+}
+
+model BodyWeight {
+  id        String   @id @default(cuid())
+  weight    Float    // in kg
+  date      DateTime @default(now())
+  notes     String?
+
+  @@index([date])
+}
