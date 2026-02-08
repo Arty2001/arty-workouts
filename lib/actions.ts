@@ -107,7 +107,8 @@ export async function logSet(
   exerciseId: string,
   setNumber: number,
   weight: number,
-  reps: number
+  reps: number,
+  duration?: number
 ) {
   const set = await prisma.setLog.create({
     data: {
@@ -116,6 +117,7 @@ export async function logSet(
       setNumber,
       weight,
       reps,
+      ...(duration != null && { duration }),
     },
   });
 
