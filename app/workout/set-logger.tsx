@@ -25,8 +25,6 @@ export function SetLogger({
   const [isPending, startTransition] = useTransition();
   const [weight, setWeight] = useState(suggestedWeight.toString());
   const [reps, setReps] = useState(minReps === maxReps ? "1" : "");
-  const [minutes, setMinutes] = useState("");
-  const [seconds, setSeconds] = useState("");
 
   const isCore = minReps === 1 && maxReps === 1;
 
@@ -38,13 +36,8 @@ export function SetLogger({
 
     if (isNaN(weightNum) || isNaN(repsNum)) return;
 
-    const mins = parseInt(minutes, 10) || 0;
-    const secs = parseInt(seconds, 10) || 0;
-    const totalSeconds = mins * 60 + secs;
-    const duration = totalSeconds > 0 ? totalSeconds : undefined;
-
     startTransition(async () => {
-      await logSet(sessionId, exerciseId, setNumber, weightNum, repsNum, duration);
+      await logSet(sessionId, exerciseId, setNumber, weightNum, repsNum);
       router.refresh();
     });
   }
@@ -57,14 +50,6 @@ export function SetLogger({
   function adjustReps(delta: number) {
     const current = parseInt(reps, 10) || 0;
     setReps(Math.max(1, current + delta).toString());
-  }
-
-  function adjustTime(delta: number) {
-    const mins = parseInt(minutes, 10) || 0;
-    const secs = parseInt(seconds, 10) || 0;
-    const total = Math.max(0, mins * 60 + secs + delta);
-    setMinutes(Math.floor(total / 60).toString());
-    setSeconds((total % 60).toString().padStart(2, "0"));
   }
 
   return (
@@ -134,60 +119,6 @@ export function SetLogger({
             </p>
           </div>
         )}
-
-        <div className="space-y-3">
-          <label className="text-sm text-muted block">Time (optional)</label>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => adjustTime(-15)}
-              className="w-14 h-14 border border-border rounded-lg text-xl font-medium hover:bg-neutral-50 transition-colors"
-            >
-              -
-            </button>
-            <div className="flex-1 flex items-center gap-2">
-              <input
-                type="number"
-                inputMode="numeric"
-                value={minutes}
-                onChange={(e) => setMinutes(e.target.value)}
-                placeholder="0"
-                className="flex-1 h-14 text-center text-2xl font-semibold border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                min="0"
-              />
-              <span className="text-xl font-semibold text-muted">:</span>
-              <input
-                type="number"
-                inputMode="numeric"
-                value={seconds}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
-                  if (isNaN(val) || val < 0) {
-                    setSeconds("");
-                  } else if (val > 59) {
-                    setSeconds("59");
-                  } else {
-                    setSeconds(e.target.value);
-                  }
-                }}
-                placeholder="00"
-                className="flex-1 h-14 text-center text-2xl font-semibold border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                min="0"
-                max="59"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => adjustTime(15)}
-              className="w-14 h-14 border border-border rounded-lg text-xl font-medium hover:bg-neutral-50 transition-colors"
-            >
-              +
-            </button>
-          </div>
-          <p className="text-xs text-muted text-center">
-            min : sec
-          </p>
-        </div>
 
         {isCore && (
           <div className="p-6 border border-border rounded-lg bg-white text-center">
