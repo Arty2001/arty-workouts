@@ -26,6 +26,7 @@ model SetLog {
   setNumber       Int
   weight          Float
   reps            Int
+  duration        Int?           // duration in seconds
   loggedAt        DateTime       @default(now())
 
   @@index([exerciseId])
